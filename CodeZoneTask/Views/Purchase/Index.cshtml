@@ -1,0 +1,81 @@
+﻿@model IEnumerable<CodeZoneTask.Models.Entities.Purchase>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<div class="container">
+    <h1 class="mt-5">Purchase Items</h1>
+
+    <!-- if purchase done successfully -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <!-- purchase form -->
+    <form method="post" action="/Purchase/Purchase" class="mt-3">
+        <!-- stock -->
+        <div class="mb-3">
+            <label for="stockId" class="form-label">Select Stock:</label>
+            <select name="stockId" id="stockId" class="form-select">
+                <option value="" disabled selected>Select Stock</option>
+                @foreach (var stock in ViewBag.Stocks)
+                {
+                    <option value="@stock.Value">@stock.Text</option>
+                }
+            </select>
+        </div>
+
+        <!-- item -->
+
+        <div class="mb-3">
+            <label for="itemId" class="form-label">Select Item:</label>
+            <select name="itemId" id="itemId" class="form-select">
+                <option value="" disabled selected>Select Item</option>
+                @foreach (var item in ViewBag.Items)
+                {
+                    <option value="@item.Value">@item.Text</option>
+                }
+            </select>
+        </div>
+
+        <!-- quantity -->
+
+        <div class="mb-3">
+            <label for="quantity" class="form-label">Enter Quantity:</label>
+            <input type="number" name="quantity" id="quantity" value="1" min="1" class="form-control" step="any" required>
+        </div>
+
+        <!-- available quantity -->
+
+        <div class="mb-3">
+            <label for="availableQuantity" class="form-label">Available Quantity:</label>
+            <input type="number" name="availableQuantity" id="availableQuantity" class="form-control" disabled>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Purchase</button>
+    </form>
+</div>
+
+@section scripts
+{
+<script>
+    //function to get available quantity when stock or item selected on both will not be null
+        $(function () {
+            $('#stockId, #itemId').change(function () {
+                var stockId = $('#stockId').val();
+                var itemId = $('#itemId').val();
+                //if selection is null for any return
+                if (!stockId || !itemId) {
+                    return; 
+                }
+                //get value
+                $.get('/Purchase/GetItemQuantity', { stockId: stockId, itemId: itemId }, function (data) {
+                    $('#availableQuantity').val(data); 
+                });
+            });
+        });
+</script>
+}

@@ -1,0 +1,113 @@
+﻿@model IEnumerable<CodeZoneTask.Models.Entities.Stock>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Stocks</h1>
+
+
+<form id="createForm" method="post" action="/Stock/Create">
+    <input type="text" id="stockName" name="Name" class="form-control" placeholder="Enter stock name">
+    <br />
+    <button type="submit" class="btn btn-primary">Add</button>
+</form>
+
+
+<h2>Stocks List</h2>
+<div class="table-responsive" id="stocksList">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Stock</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var stock in Model)
+            {
+                <tr>
+                    <td>@stock.Name</td>
+                    <td>
+                        <form id="editForm_@stock.Id" method="post" action="/Stock/Edit/@stock.Id" style="display: none;">
+                            <input type="text" name="name" value="@stock.Name" placeholder="Enter new name">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="button" class="btn btn-close" onclick="cancelEdit(@stock.Id)"></button>
+                        </form>
+                        <button id="editButton_@stock.Id" class="btn btn-info editStock" type="button" onclick="showEditForm(@stock.Id)">Edit</button>
+                    </td>
+
+                    <td>
+                        <form id="deleteForm_@stock.Id" method="post" action="/Stock/Delete/@stock.Id">
+                            <button type="button" class="btn btn-danger deleteStock" onclick="confirmDelete(@stock.Id)">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function showEditForm(stockId) {
+
+        document.getElementById('editButton_' + stockId).style.display = 'none';
+
+        document.getElementById('editForm_' + stockId).style.display = 'block';
+    }
+
+    function cancelEdit(stockId) {
+        document.getElementById('editForm_' + stockId).style.display = 'none';
+
+        document.getElementById('editButton_' + stockId).style.display = 'inline-block';
+    }
+
+    function confirmDelete(stockId) {
+        if (confirm('Are you sure you want to delete this stock?')) {
+            document.getElementById('deleteForm_' + stockId).submit();
+        }
+    }
+</script>
+
+
+
+
+@section scripts
+{
+    <script>
+        //function to check stock name before save to prevent duplication
+
+        $(function () {
+            $('#createForm').submit(function (event) {
+                event.preventDefault();
+
+                var stockName = $('#stockName').val();
+
+                //  if  stock name is empty
+                if (!stockName) {
+                    alert("Please enter an stock name.");
+                    return;
+                }
+
+                // check if an stock with the same name already exists in the list
+                if ($('#stocksList').find('td:first-child').filter(function () {
+                    return $(this).text() === stockName;
+                }).length > 0) {
+                    alert("An stock with the same name already exists.");
+                    return;
+                }
+
+                this.submit();
+            });
+        });
+    </script>
+
+}
+
+
+
+
+
+
+
